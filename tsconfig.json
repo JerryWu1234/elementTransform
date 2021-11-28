@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "esModuleInterop": true,
+    "module": "CommonJS",
+    "noImplicitAny": false,
+    "strict": true,
+    "sourceMap": true,
+    "removeComments": true,
+    "allowJs": true,
+    "target": "ES5",
+    "moduleResolution": "node",
+    "declaration": true, // 生成定义文件
+    "declarationMap": false, // 生成定义sourceMap
+    "declarationDir": "./types", // 
+    "lib": [
+      "dom",
+      "esnext"
+    ]
+  },
+  "exclude": [
+    "node_modules",
+    "example",
+    "build"
+  ],
+  "include": [
+    "src/*"
+  ]
+}
