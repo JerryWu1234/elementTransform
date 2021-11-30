@@ -25,7 +25,7 @@ decorateCompilerPreproty()
 // over methods then can write my methods
 decorateCompiler.ssrCompile = decorateCompiler.compile = function overCompiler(template: string, options: CompilerOptionsWithSourceRange) {
   const { ast, render, staticRenderFns, tips, errors } = compiler.compile(template, options)
-  debugger
+
   console.log(babelAst(render))
 
   return { ast, render: babelAst(render), staticRenderFns, tips, errors }

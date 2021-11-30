@@ -120,6 +120,8 @@ export default {
 
 ps: [本来想通过 webpack 钩子获取拦截 render 函数，但是不可以甚至问了下webpack的作者, 可以直接连接跳转过去看下](https://github.com/didi/epage/issues/12)
 
+- 第一种 .vue 方式类型
+
 通过 vue-loader 我们可以拦截 template 生产的render函数
 
 拦截方式
@@ -159,5 +161,145 @@ decorateCompiler.ssrCompile = decorateCompiler.compile = function overCompiler(t
   return { ast, render, staticRenderFns, tips, errors }
 }
 ```
-如上代码所示，我们可以通过替换 vue-loader 中用到的 vue-template-compiler。vue-template-compiler 我们主要重写下 `compiler.compile` 和 `decorateCompiler.ssrCompile`
+如上代码所示，我们可以通过替换 vue-loader 中用到的 vue-template-compiler。vue-template-compiler 中我们主要重写下 `compiler.compile` 和 `decorateCompiler.ssrCompile`
 
+- 第二种 render 函数类型
+
+第二种其实是js文件，vue2.0 其实基于webpack封装的脚手架工具，这里我们要了解下 webpack 的 loader 执行顺序
+
+其实：loader 从右到左（或从下到上）地取值(evaluate)/执行(execute)。在下面的示例中，从 sass-loader 开始执行，然后继续执行 css-loader，最后以 style-loader 为结束。查看 [loader 功能](https://webpack.docschina.org/concepts/loaders/#loader-features) 章节，了解有关 loader 顺序的更多信息。
+
+```js
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.css$/,
+        use: [
+          // 3
+          { loader: 'style-loader' },
+          // 2
+          {
+            loader: 'css-loader',
+            options: {
+              modules: true
+            }
+          },
+          // 1
+          { loader: 'sass-loader' }
+        ]
+      }
+    ]
+  }
+};
+
+```
+
+在 vuecli 中我们通过类似的方式拦截 render 函数
+
+例如：
+```js
+module.exports = {
+  module: {
+    rules: [
+      {
+        test: /\.js$/,
+        use: [
+          // this your loader
+          {loader: 'your loader'},
+          // 2
+          { loader: 'babel-loader' },
+          // 1
+        ]
+      }
+    ]
+  }
+};
+```
+
+loader 其实从下往上执行的，我们可以拦截 babel-loader 编译后的产物
+
+</br>
+<h2>babel修改render函数</h2>
+
+我这里采用了配置化的方式将 elementUI 转换为 IviewUI 方式
+
+以 button 按钮为例 
+```js
+
+
+//  state 0 replace key, state 1 replace key and value, state 2 replace part
+export const buttonProprety = {
+  plain: {
+    state: 0,
+    ghost: null
+  },
+  circle: {
+    state: 1,
+    shape: 'circle'
+  },
+  round: {
+    state: 1,
+    shape: 'circle'
+  },
+  nativeType: {
+    state: 0,
+    htmlType: null
+  },
+  type: {
+    state: 2,
+    type: {
+      danger: 'error'
+    }
+  },
+  size: {
+    state: 2,
+    size: {
+      medium: 'default',
+      mini: 'small',
+      default: 'large'
+    }
+  }
+}
+
+```
+
+如上代码，state 0 代表替换 key, state 1代表替换key 和value， state代表替换部分.
+
+```js 
+it('state 为 1的时候', () => {
+  `h('el-button', {round: ''}, 23)`.expect(`h('Button', {shape: 'circle'}, 23)`)
+})
+
+it('state 为 0的时候', () => {
+  `h('el-button', {plain: ''}, 23)`.expect(`h('Button', {ghost: ''}, 23)`)
+})
+
+it('state 为 2的时候', () => {
+  `h('el-button', {size: 'medium'}, 23)`.expect(`h('Button', {small: 'small'}, 23)`)
+})
+```
+
+
+我们罗列所有的 Button 的属性,通过 babel 获取到当前 Callexpssion 中的attrs 属性，如何通过数据转换
+
+[有兴趣的同学可以加入到我们的开发](https://github.com/wulinsheng123/elementTransform)
+
+最后使用方式
+
+```js
+const compiler = require('YOUR COMPILER')
+module.exports = {
+  lintOnSave: false,
+  chainWebpack: config => {
+
+    config.module
+      .rule('vue')
+      .use('vue-loader')
+      .tap(options => {
+        options.compiler = compiler
+        return options
+      })
+  }
+}
+```

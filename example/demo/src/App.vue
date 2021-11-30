@@ -1,7 +1,6 @@
 <template>
   <div id="app">
     <el-button round>2323</el-button>
-    <el-tree :data='data'></el-tree>
   </div>
 </template>
 <script>
