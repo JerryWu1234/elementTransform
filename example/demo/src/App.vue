@@ -1,16 +1,16 @@
 <template>
   <div id="app">
-    <el-button round>2323</el-button>
+    <customer-button></customer-button>,
+    <customer-tree></customer-tree>
   </div>
 </template>
 <script>
+import customerButton from './componentTestCase/button.vue'
+import customerTree from './componentTestCase/tree.vue'
 export default {
-  data(){
-    return {
-      data: [{
-        label: '一级 1'
-      }]
-    }
+  components: {
+    customerButton,
+    customerTree
   }
-}
+};
 </script>>

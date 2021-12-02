@@ -1,10 +1,11 @@
 // types
 import type { NodePath } from '@babel/traverse'
 import type { CallExpression, StringLiteral, ObjectExpression, ObjectProperty } from '@babel/types'
+import type { Attrs } from './type'
 
 // @ts-ignore
 import * as t from '@babel/types'
-import { getIdentifier, createObjectProprety } from './utils'
+import { astAttrsIntoObject, createObjectProprety } from './utils'
 import { transformProperty, createPropreties } from './transform'
 // component attribute
 import { buttonProprety } from './componen/button'
@@ -22,22 +23,28 @@ export const COMPONENTMAP = {
 
         const preprotyName = cpath.get('key').toString()
 
+        /**
+         * attrs: {
+         *    a: '2',
+         *    b: b,
+         *    d: {a: 1},
+         *    m: (function(){})()
+         * }
+         *  attrs may is one of "stringliteral, identifier, callexpression, Objectexpssion"
+         * 
+         * */
         if (preprotyName === 'attrs') {
-          const attrs: Record<string, any> = {}
+          const attrs: Array<Attrs> = [] 
           const ObjectExpression = cpath.get('value') as NodePath<ObjectExpression>
           const properties = ObjectExpression.node.properties as Array<ObjectProperty>
-
-          properties.forEach((item) => {
-            attrs[(item.key as StringLiteral).value] = getIdentifier(item.value as any)
-          })
 
           /**
            * {
            *  size: 'mini'
            * }
            */
-          if (!attrs.size) attrs.size = 'default'
-
+          // if (!attrs.size) attrs.size = 'default'
+          astAttrsIntoObject(properties, attrs)
           const propreies = createPropreties(transformProperty(attrs, buttonProprety))
           cpath.replaceWith(createObjectProprety(preprotyName, t.objectExpression(propreies)))
 
@@ -56,15 +63,21 @@ export const COMPONENTMAP = {
         const preprotyName = cpath.get('key').toString()
 
         if (preprotyName === 'attrs') {
+          /**
+           * 
+           * {
+              props: 'identifier:defaultProps',
+              data: []
+            }
+           *  
+          */
+          const attrs: Array<Attrs> = [] 
 
-          const attrs: Record<string, any> = {}
           const ObjectExpression = cpath.get('value') as NodePath<ObjectExpression>
           const properties = ObjectExpression.node.properties as Array<ObjectProperty>
 
-          properties.forEach((item) => {
-            attrs[(item.key as StringLiteral).value] = getIdentifier(item.value as any)
-          })
-
+          astAttrsIntoObject(properties, attrs)
+ 
           const propreies = createPropreties(transformProperty(attrs, treeProprety))
           cpath.replaceWith(createObjectProprety(preprotyName, t.objectExpression(propreies)))
 

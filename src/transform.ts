@@ -1,4 +1,5 @@
 import type { ObjectProperty } from '@babel/types'
+import type { Attrs } from './type'
 // @ts-ignore
 import * as t from '@babel/types'
 import template from '@babel/template'
@@ -6,23 +7,23 @@ import template from '@babel/template'
 import { objectTransformArray } from './utils'
 // iview proprety transform to element property
 // targetAttr is file in component
-export function transformProperty(sourceAttr: Record<string, any>, targetAttr: Record<string, any>) {
+export function transformProperty(attrs: Array<Attrs>, targetAttr: Record<string, any>) {
   const detailPropreties: Array<Record<string, any>> = []
 
-  for (let key of Object.keys(sourceAttr)) {
-    const val = targetAttr[key]
+  for (let attr of attrs) {
+    const val = targetAttr[attr.key]
 
     if (!val) break
 
-    if (val.state === 0) detailPropreties.push(replaceKey(sourceAttr, val, key))
+    if (val.state === 0) detailPropreties.push(replaceKey(attr, val))
 
     if (val.state === 1) detailPropreties.push(replaceObject(val))
 
-    if (val.state === 2 || val.state === 3) detailPropreties.push(replaceValue(sourceAttr, val))
+    if (val.state === 2 || val.state === 3) detailPropreties.push(replaceValue(attr, val))
 
   }
 
-  function replaceValue(sourceAttr: Record<string, any>, val: Record<string, any>) {
+  function replaceValue(attr: Attrs, val: Record<string, any>) {
     const newObj: Record<string, any> = {
       key: null,
       value: null,
@@ -38,14 +39,10 @@ export function transformProperty(sourceAttr: Record<string, any>, targetAttr: R
         continue
       }
 
-      const kind = sourceAttr[k].split(':')
-      if (kind.length > 1) {
-        newObj.kind = kind[0]
-        sourceAttr[k] = kind[1]
-      }
+      newObj.kind = attr.type
       // set default value when can't find map
       // example: { size: small }
-      newObj.value = !val[k][sourceAttr[k]] ? sourceAttr[k] : val[k][sourceAttr[k]]
+      newObj.value = !val[k][attr.value as any] ? attr.value : val[k][attr.value as any]
       newObj.key = k
       newObj.map = val[k]
     }
@@ -53,7 +50,7 @@ export function transformProperty(sourceAttr: Record<string, any>, targetAttr: R
     return newObj
   }
 
-  function replaceKey(sourceAttr: Record<string, any>, val: Record<string, any>, key: string) {
+  function replaceKey(attr: Attrs, val: Record<string, any>) {
     const newObj: Record<string, any> = {
       key: null,
       value: null,
@@ -69,14 +66,9 @@ export function transformProperty(sourceAttr: Record<string, any>, targetAttr: R
         continue
       }
 
-      const kind = sourceAttr[k].split(':')
-      if (kind.length > 1) {
-        newObj.kind = kind[0]
-        sourceAttr[k] = kind[1]
-      }
-
+      newObj.kind = attr.type
       newObj.key = k
-      newObj.value = sourceAttr[key]
+      newObj.value = attr.value
 
     }
 
@@ -139,6 +131,12 @@ function createObjctpropretyValue(object: Record<string, any>) {
     const data: Array<any> = objectTransformArray(object.map).map((v: any) => t.objectProperty(t.stringLiteral(v.key), t.stringLiteral(v.value)))
     return t.memberExpression(t.objectExpression(data), t[object.kind as 'identifier'](object.value), true)
   } else if (object.state === 3) {
-    return template.expression(`${object.map(object.value)}`)()
+    const expssion = template.expression(`(function (data, vm) {})(DATA, this)`)({ DATA: object.value })
+    const ast = template.ast`${object.map}`;
+    // @ts-ignore
+    const body = (expssion as t.CallExpression).callee?.body.body
+    body.push(ast)
+
+    return expssion
   }
 }

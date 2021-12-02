@@ -1,6 +1,10 @@
 export declare const treeProprety: {
     data: {
         state: number;
-        data(data: any): string;
+        data: string;
+    };
+    props: {
+        state: number;
+        props: string;
     };
 };

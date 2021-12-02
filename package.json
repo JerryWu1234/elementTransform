@@ -10,7 +10,6 @@
     "typings": "types/index.d.ts",
     "scripts": {
         "build": "tsc -p tsconfig.json",
-        "dev:dist": "NODE_ENV=development rollup -wm -c  build/rollup.dev.config.js",
         "watchTsc": "tsc -p tsconfig.json --watch",
         "watchjest": "jest --watch --runInBand --no-cache --config jest.config.js",
         "publish": "",
