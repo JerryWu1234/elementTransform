@@ -1,7 +1,8 @@
 .<template>
   <div>
-    <el-tree :data="data" :props="{ label: 'titile' }"></el-tree>
+    <el-tree :data="data" :props="m"></el-tree>
     <div @click='clickd' >43</div>
+    <el-tree :data="data" :props="{ label: 'titile' }"></el-tree>
   </div>
 </template>
 
@@ -9,6 +10,7 @@
 export default {
   data() {
     return {
+      m: { label: 'titile' },
       data: [
         {
           label: "一级 1",

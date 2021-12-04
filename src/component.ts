@@ -45,7 +45,7 @@ export const COMPONENTMAP = {
            */
           // if (!attrs.size) attrs.size = 'default'
           astAttrsIntoObject(properties, attrs)
-          const propreies = createPropreties(transformProperty(attrs, buttonProprety))
+          const propreies = createPropreties(transformProperty(attrs, buttonProprety), attrs)
           cpath.replaceWith(createObjectProprety(preprotyName, t.objectExpression(propreies)))
 
         }
@@ -78,7 +78,7 @@ export const COMPONENTMAP = {
 
           astAttrsIntoObject(properties, attrs)
  
-          const propreies = createPropreties(transformProperty(attrs, treeProprety))
+          const propreies = createPropreties(transformProperty(attrs, treeProprety), cpath)
           cpath.replaceWith(createObjectProprety(preprotyName, t.objectExpression(propreies)))
 
         }

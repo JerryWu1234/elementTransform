@@ -38,8 +38,9 @@ export function astAttrsIntoObject(properties: Array<t.ObjectProperty>, attrsLis
     Identifier(item, attrs) {
       attrs.value = item.name
     },
-    CallExpression() {
-      // debugger
+    CallExpression(item, attrs) {
+      // TODO 暂时还没做函数型的参数处理 
+      // attrs.value = item
     },
     ObjectExpression(item, attrs) {
       attrs.value = []
@@ -62,4 +63,9 @@ export function astAttrsIntoObject(properties: Array<t.ObjectProperty>, attrsLis
 
     attrsList.push(attrs)
   })
+}
+
+
+export function getFunctionBody(str: string) {
+  return str.substring(str.indexOf('{') + 1, str.lastIndexOf('}'))
 }

@@ -4,7 +4,7 @@ import type { Attrs } from './type'
 import * as t from '@babel/types'
 import template from '@babel/template'
 
-import { objectTransformArray } from './utils'
+import { objectTransformArray, getFunctionBody } from './utils'
 // iview proprety transform to element property
 // targetAttr is file in component
 export function transformProperty(attrs: Array<Attrs>, targetAttr: Record<string, any>) {
@@ -101,7 +101,7 @@ export function transformProperty(attrs: Array<Attrs>, targetAttr: Record<string
   return detailPropreties
 }
 
-export function createPropreties(object: Record<string, any>) {
+export function createPropreties(object: Record<string, any>, attrs: any) {
   const propreties: Array<ObjectProperty> = [];
 
 
@@ -112,7 +112,7 @@ export function createPropreties(object: Record<string, any>) {
 
       create = t[item.kind as 'stringLiteral'](item.value)
     } else {
-      create = createObjctpropretyValue(item)
+      create = createObjctpropretyValue(item, attrs)
 
     }
 
@@ -126,15 +126,19 @@ export function createPropreties(object: Record<string, any>) {
 }
 
 
-function createObjctpropretyValue(object: Record<string, any>) {
+function createObjctpropretyValue(object: Record<string, any>, attrs: any) {
   if (object.state === 2) {
     const data: Array<any> = objectTransformArray(object.map).map((v: any) => t.objectProperty(t.stringLiteral(v.key), t.stringLiteral(v.value)))
     return t.memberExpression(t.objectExpression(data), t[object.kind as 'identifier'](object.value), true)
   } else if (object.state === 3) {
-    const expssion = template.expression(`(function (data, vm) {})(DATA, this)`)({ DATA: object.value })
-    const ast = template.ast`${object.map}`;
+    const expssion = template.expression(`(function (data, vm, attrs) {
+    })(DATA, this)`)({ DATA: object.value })
+    const ast = template.ast`${getFunctionBody(object.map)}`;
+
     // @ts-ignore
     const body = (expssion as t.CallExpression).callee?.body.body
+    // @ts-ignore
+    expssion.arguments.push(attrs.get('value').node)
     body.push(ast)
 
     return expssion
