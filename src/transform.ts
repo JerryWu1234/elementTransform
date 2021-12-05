@@ -13,7 +13,7 @@ export function transformProperty(attrs: Array<Attrs>, targetAttr: Record<string
   for (let attr of attrs) {
     const val = targetAttr[attr.key]
 
-    if (!val) break
+    if (!val) continue
 
     if (val.state === 0) detailPropreties.push(replaceKey(attr, val))
 
@@ -108,7 +108,7 @@ export function createPropreties(object: Record<string, any>, attrs: any) {
   for (let item of Object.assign(object)) {
     let create;
 
-    if (item.kind === 'stringLiteral' || !item.kind) {
+    if ((item.kind === 'stringLiteral') || (!item.map && item.kind === 'Identifier')) {
 
       create = t[item.kind as 'stringLiteral'](item.value)
     } else {

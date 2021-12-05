@@ -1,6 +1,7 @@
 // @ts-ignore
 import * as compiler from 'vue-template-compiler'
 import { transformSync } from '@babel/core'
+import { camel } from './utils'
 
 // types
 import type { CompilerOptionsWithSourceRange } from 'vue-template-compiler'
@@ -42,7 +43,7 @@ function babelAst(render: string) {
 }
 
 function toFunction(code: string) {
-  return `function m () {${code}} `
+  return `function m () {${camel(code)}} `
 }
 
 // @ts-ignore

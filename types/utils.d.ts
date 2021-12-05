@@ -6,3 +6,4 @@ export declare function createObjectProprety(key: string, expression: ObjectExpr
 export declare function objectTransformArray(object: Record<string, any>): Record<string, any>[];
 export declare function astAttrsIntoObject(properties: Array<t.ObjectProperty>, attrsList: Array<Attrs>): void;
 export declare function getFunctionBody(str: string): string;
+export declare function camel(string: string): string;

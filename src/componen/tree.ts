@@ -7,11 +7,15 @@ export const treeProprety = {
     // 
     data: `
     function (data, vm, attrs){
-      const val = JSON.parse(JSON.stringify(data))
-      const v = {
-        children: 'children',
-        label: 'title'
+      let v = typeof attrs.props === 'string' ? vm[attrs.props] : attrs.props
+      if(!v || v.label !== 'label'){
+        v = {
+          children: 'children',
+          label: 'title'
+        }
       }
+      const val = JSON.parse(JSON.stringify(data))
+  
       function replaceKeyAndValue(array, props) {
         return array.map(item => {
           item[props.label] = item.label
@@ -25,17 +29,14 @@ export const treeProprety = {
      return replaceKeyAndValue(val, v)
     }`
   },
-  props: {
-    state: 3,
-    props:`
-      function (data, vm, attrs) {
-        const prop = attrs.props
-        if (prop.label === 'label') {
-          prop.title = prop.label
-          delete prop.label
-        }
-      }
-      `
-  }
+
+  load: {
+    state: 0,
+    loadData: null
+  },
+  renderContent: {
+    state: 0,
+    render: null
+  },
 }
 

@@ -82,7 +82,6 @@ export const COMPONENTMAP = {
           cpath.replaceWith(createObjectProprety(preprotyName, t.objectExpression(propreies)))
 
         }
-        cpath.skip()
       }
     })
   }

@@ -2,6 +2,7 @@ import type { ObjectExpression } from '@babel/types'
 import type { Attrs } from './type'
 // @ts-ignore
 import * as t from '@babel/types'
+import { kill } from 'process'
 
 export function getTag(name: string) {
   if (name.includes('el')) return `${name.slice(3, 4).toLocaleUpperCase()}${name.slice(4)}`
@@ -68,4 +69,10 @@ export function astAttrsIntoObject(properties: Array<t.ObjectProperty>, attrsLis
 
 export function getFunctionBody(str: string) {
   return str.substring(str.indexOf('{') + 1, str.lastIndexOf('}'))
+}
+
+export function camel(string: string) {
+  return string.replace(/\"([a-z]+\w)-(\w)([a-z]+)\"\s*/ig, (all, $1, $2, $3) => {
+    return `${$1}${$2.toLocaleUpperCase()}${$3}`
+  })
 }

@@ -3,8 +3,12 @@ export declare const treeProprety: {
         state: number;
         data: string;
     };
-    props: {
+    load: {
         state: number;
-        props: string;
+        loadData: null;
+    };
+    renderContent: {
+        state: number;
+        render: null;
     };
 };
